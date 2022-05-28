@@ -55,16 +55,24 @@ async function run() {
       }
     };
 
+    // parts/ tools section get, post, delete
     app.get("/parts", async (req, res) => {
       const query = {};
       const result = await partsCollection.find(query).toArray();
       res.send(result);
     });
-    app.post("/parts", verifyAdmin, async (req, res) => {
+    app.post("/parts", verifyJWT, verifyAdmin, async (req, res) => {
       const parts = req.body;
       const result = await partsCollection.insertOne(parts);
       res.send(result);
     });
+    app.delete('/parts/:id', verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await partsCollection.deleteOne(query);
+      res.send(result);
+    });
+
 
     // admin check
     app.get("/admin/:email", async (req, res) => {
@@ -75,7 +83,11 @@ async function run() {
     });
 
     // order
-    app.get("/parts/:id", async (req, res) => {
+    app.get('/orders', async (req, res) => {
+      const result = await ordersCollection.find().toArray()
+      res.send(result);
+    })
+    app.get("/order/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await partsCollection.findOne(query);
