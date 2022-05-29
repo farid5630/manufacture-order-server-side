@@ -93,6 +93,24 @@ async function run() {
       const result = await partsCollection.findOne(query);
       res.send(result);
     });
+    // update available Quantity 
+    app.put("/order/:id",verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const updatedQuantity = req.body;
+      const query = { _id: ObjectId(id) };
+      console.log(query);
+      const options = { upsert: true };
+      const updateQuantity = {
+        $set: {availabalQuantity: updatedQuantity.avilableQuantity },
+      };
+      const stockItem = await partsCollection.updateOne(
+        query,
+        updateQuantity,
+        options
+      );
+      res.send({ massage: stockItem });
+    })
+
     // MY ORDER
     app.get("/myorder", verifyJWT, async (req, res) => {
       const email = req.query.email;
@@ -137,9 +155,9 @@ async function run() {
       res.send({ result, token });
     });
 
+
     // user get and make admin
     app.get("/user", async (req, res) => {
-      // const query = {};
       const users = await userCollection.find().toArray();
       res.send(users);
     });
@@ -154,11 +172,11 @@ async function run() {
       res.send(result);
     });
 
+
     // add review
     app.get("/review", async (req, res) => {
       const query = {};
       const result = await reviewsCollection.find(query).toArray();
-      console.log(result);
       res.send(result);
     });
     app.post("/review", async (req, res) => {
